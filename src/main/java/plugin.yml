@@ -4,7 +4,7 @@ api-version: 1.17
 description: A Minecraft plugin to create and manage ingame image-panels
 authors: [FelixBau]
 
-main: de.flxnet.pixelwal.PixelWallPlugin
+main: de.flxnet.pixelwall.PixelWallPlugin
 
 commands:
    panel:
