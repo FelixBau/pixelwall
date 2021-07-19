@@ -52,6 +52,13 @@ public class PanelLocation {
 		return new Location(Bukkit.getWorld(this.worldName), this.x, this.y, this.z);
 	}
 	
+	public static boolean check(PanelLocation location1, PanelLocation location2) {
+		if(location1.getX() != location2.getX()) return false;
+		if(location1.getY() != location2.getY()) return false;
+		if(location1.getZ() != location2.getZ()) return false;
+		return true;
+	}
+	
 	@Override
 	public String toString() {
 		return "TileLocation(world=" + worldName + ", x=" + x + ", y=" + y + ", z=" + z + ", direction=" + direction + ")";

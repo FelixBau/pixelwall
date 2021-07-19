@@ -74,7 +74,6 @@ public class Panel {
 		} catch(Exception ex) {
 			imageLoaded = false;
 		}
-		System.out.println("imageLoaded=" + imageLoaded);
 		return imageLoaded;
 	}
 	
@@ -126,8 +125,9 @@ public class Panel {
 		return rendered;
 	}
 	
-	public void resetImage(URL url) {
-		imageSource = url;
+	public void update(URL url, PanelLocation panelLocation) {
+		if(url != null) imageSource = url;
+		location = panelLocation;
 		rendered = false;
 	}
 	

@@ -55,19 +55,34 @@ public class PanelCommand implements CommandExecutor, TabCompleter {
 			return true;
 		}
 		
-		// /panel set <name> <url>
-		if(args.length == 3 && args[0].equalsIgnoreCase("set")) {
+		// /panel update <name> <url>
+		if(args.length == 2 && args[0].equalsIgnoreCase("update")) {
+			Location location = player.getLocation();
+			String name = args[1];
 			
+			Panel panel = PixelWallPlugin.getInstance().getPanelManager().getPanel(name);
+			panel.update(null, PanelLocation.of(location, PanelHelper.getFacing(player.getFacing())));
+			
+			ConsoleHelper.playerSuccess(player, "Updated panel §b" + panel.getName() + " §7(" + panel.getLocation().toString() + ")");
+			PanelHelper.destroyPanel(panel, Lists.newArrayList(Bukkit.getOnlinePlayers()), true);
+			PanelHelper.buildPanel(panel, Lists.newArrayList(Bukkit.getOnlinePlayers()));
+			
+			return true;
+		}
+		
+		if(args.length == 3 && args[0].equalsIgnoreCase("update")) {
+			
+			Location location = player.getLocation();
 			String name = args[1];
 			String urlString = args[2];
 			URL url = PanelHelper.getUrl(urlString);
 			
 			Panel panel = PixelWallPlugin.getInstance().getPanelManager().getPanel(name);
-			panel.resetImage(url);
+			panel.update(url, PanelLocation.of(location, PanelHelper.getFacing(player.getFacing())));
 			
-			ConsoleHelper.playerSuccess(player, "Set new image source for panel §b" + panel.getName());
+			ConsoleHelper.playerSuccess(player, "Updated panel §b" + panel.getName() + " §7(" + panel.getLocation().toString() + ")");
 			PanelHelper.destroyPanel(panel, Lists.newArrayList(Bukkit.getOnlinePlayers()), true);
-			PanelHelper.providePanel(panel, Lists.newArrayList(Bukkit.getOnlinePlayers()));
+			PanelHelper.buildPanel(panel, Lists.newArrayList(Bukkit.getOnlinePlayers()));
 			
 			return true;
 		}
@@ -90,7 +105,7 @@ public class PanelCommand implements CommandExecutor, TabCompleter {
 			}
 			
 			ConsoleHelper.playerSuccess(player, "Added new panel §b" + panel.getName() + " §7(" + panel.getLocation().toString() + ")");
-			PanelHelper.providePanel(panel, Lists.newArrayList(Bukkit.getOnlinePlayers()));
+			PanelHelper.buildPanel(panel, Lists.newArrayList(Bukkit.getOnlinePlayers()));
 			
 			return true;
 		}
@@ -119,7 +134,7 @@ public class PanelCommand implements CommandExecutor, TabCompleter {
 	
 	@Override
 	public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
-		if(args.length == 1) return Lists.newArrayList("list", "set", "add", "delete");
+		if(args.length == 1) return Lists.newArrayList("list", "add", "delete", "update");
 		return null;
 	}
 

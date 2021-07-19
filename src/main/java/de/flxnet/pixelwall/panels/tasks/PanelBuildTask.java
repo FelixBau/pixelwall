@@ -6,42 +6,72 @@ import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
+import de.flxnet.pixelwall.helpers.ConsoleHelper;
 import de.flxnet.pixelwall.helpers.NMSHelper;
+import de.flxnet.pixelwall.helpers.PanelHelper;
 import de.flxnet.pixelwall.panels.Panel;
 import de.flxnet.pixelwall.panels.PanelDirection;
 import de.flxnet.pixelwall.panels.PanelImageRender;
 import de.flxnet.pixelwall.panels.PanelRenderPackage;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.core.BlockPosition;
 import net.minecraft.world.level.World;
 
-/**
- * Software by FLXnet
- * More info at FLXnet.de
- * Copyright (c) 2015-2021 by FLXnet
- * @author Felix
- */
-public class PanelProvisionTask implements Runnable {
+public class PanelBuildTask implements Runnable {
 
-	@Getter @Setter
-	private List<Player> players;
-	
 	@Getter @Setter
 	private Panel panel;
 	
-	public PanelProvisionTask(Panel panel, List<Player> players) {
+	@Getter @Setter
+	private List<Player> players;
+	
+	private long startTime;
+	private long endTime;
+	
+	public PanelBuildTask(Panel panel, List<Player> players) {
 		this.panel = panel;
 		this.players = players;
 	}
 	
 	@Override
 	public void run() {
-		if(!panel.isRendered()) {
-			PanelPrepareTask prepareTask = new PanelPrepareTask(panel);
-			prepareTask.run();
+		ConsoleHelper.console("§7Starting new PanelBuildTask §b(" + panel.getName() + ")");
+		startTime = System.currentTimeMillis();
+
+		boolean prepared = prepare();
+		if(!prepared) {
+			ConsoleHelper.console("§cFailed PanelBuildTask §b(" + panel.getName() + ") §4could not prepare image");
+			return;
 		}
 		
+		provide();
+		
+		endTime = System.currentTimeMillis();
+		ConsoleHelper.console("§7Finished PanelBuildTask §b(" + panel.getName() + ")§7, took " + timeTaken() + "ms");
+	}
+	
+	private long timeTaken() {
+		return endTime - startTime;
+	}
+	
+	private boolean prepare() {
+		if(panel.isRendered()) {
+			ConsoleHelper.console("§6Panel " + panel.getName() + " is already prepared, skipping.");
+			return true;
+		}
+		
+		boolean loaded = panel.loadImage();
+		if(!loaded) return false;
+		
+		panel.calculateDimensions();
+		panel.splitImage();
+		
+		boolean rendered = panel.renderImage();
+		
+		return loaded && rendered;
+	}
+	
+	private void provide() {
 		for(Player player : players) {
 			CraftPlayer craftPlayer = (CraftPlayer) player;
 			World world = craftPlayer.getHandle().getWorld();
@@ -63,25 +93,23 @@ public class PanelProvisionTask implements Runnable {
 				
 				if(panelDirection == PanelDirection.NORTH) {
 					Location placeLocation = startLocation.clone().subtract(column, 0, 0).add(0, row, 0);
-					renderPackage = render.getRenderPackage(world, fromLocation(placeLocation));
+					renderPackage = render.getRenderPackage(world, PanelHelper.fromLocation(placeLocation));
 				}
 				
 				if(panelDirection == PanelDirection.SOUTH) {
 					Location placeLocation = startLocation.clone().add(column, row, 0);
-					renderPackage = render.getRenderPackage(world, fromLocation(placeLocation));
+					renderPackage = render.getRenderPackage(world, PanelHelper.fromLocation(placeLocation));
 				}
 				
 				if(panelDirection == PanelDirection.WEST) {
 					Location placeLocation = startLocation.clone().add(0, 0, column).add(0, row, 0);
-					renderPackage = render.getRenderPackage(world, fromLocation(placeLocation));
+					renderPackage = render.getRenderPackage(world, PanelHelper.fromLocation(placeLocation));
 				}
 				
 				if(panelDirection == PanelDirection.EAST) {
 					Location placeLocation = startLocation.clone().subtract(0, 0, column).add(0, row, 0);
-					renderPackage = render.getRenderPackage(world, fromLocation(placeLocation));
+					renderPackage = render.getRenderPackage(world, PanelHelper.fromLocation(placeLocation));
 				}
-				
-				
 				
 				NMSHelper.sendPacket(player, renderPackage.getMapPacket());
 				NMSHelper.sendPacket(player, renderPackage.getSpawnEntityPacket());
@@ -94,8 +122,4 @@ public class PanelProvisionTask implements Runnable {
 		}
 	}
 	
-	public BlockPosition fromLocation(Location location) {
-		return new BlockPosition(location.getX(), location.getY() + 1, location.getZ());
-	}
-
 }
