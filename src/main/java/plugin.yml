@@ -1,0 +1,12 @@
+name: PixelWall
+version: 1.0.0
+api-version: 1.17
+description: A Minecraft plugin to create and manage ingame image-panels
+authors: [FelixBau]
+
+main: de.flxnet.pixelwal.PixelWallPlugin
+
+commands:
+   panel:
+      description: Panel management command
+      usage: </command>
