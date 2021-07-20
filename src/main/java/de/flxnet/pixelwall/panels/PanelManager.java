@@ -42,6 +42,10 @@ public class PanelManager {
 		}, 20 * 1, 20 * 30);
 	}
 	
+	public boolean exists(String name) {
+		return getPanel(name) != null;
+	}
+	
 	public Panel getPanel(String name) {
 		return panels.stream().filter(d -> d.getName().equals(name)).findAny().get();
 	}

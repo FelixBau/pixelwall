@@ -131,6 +131,12 @@ public class Panel {
 		rendered = false;
 	}
 	
+	public void move(int x, int y, int z) {
+		location.setX(location.getX() + x);
+		location.setX(location.getY() + y);
+		location.setX(location.getZ() + z);
+	}
+	
 	private BufferedImage makeSubImage(BufferedImage originalImage, int x, int y) {
 		BufferedImage newImage = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_ARGB);
 		Graphics graphics = newImage.getGraphics();

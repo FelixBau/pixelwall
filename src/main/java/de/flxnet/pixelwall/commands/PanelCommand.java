@@ -87,6 +87,14 @@ public class PanelCommand implements CommandExecutor, TabCompleter {
 			return true;
 		}
 		
+		// /panel move <name> <amountX> <amountY> <amountZ>
+		if(args.length == 4 && args[0].equalsIgnoreCase("move")) {
+		
+			
+			
+			return true;
+		}
+				
 		// /panel add <name> <url>
 		if(args.length == 3 && args[0].equalsIgnoreCase("add")) {
 			
@@ -95,6 +103,12 @@ public class PanelCommand implements CommandExecutor, TabCompleter {
 			URL url = PanelHelper.getUrl(urlString);
 			Location location = player.getLocation();
 
+			boolean exists = PixelWallPlugin.getInstance().getPanelManager().exists(name);
+			if(exists) {
+				ConsoleHelper.playerWarning(player, "A panel named '" + name + "' already exists.");
+				return true;
+			}
+			
 			Panel panel = new Panel(name, url, PanelLocation.of(location, PanelHelper.getFacing(player.getFacing())));
 			
 			boolean added = PixelWallPlugin.getInstance().getPanelManager().addPanel(panel);
